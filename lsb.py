@@ -134,6 +134,7 @@ def Laplace():
     
     image_name_1 = input("Введите название изображения (с расширением): ") 
     img = cv2.imread(image_name_1, 0)
+    img = cv2.GaussianBlur(img, (3, 3), 0)
     img_dst = cv2.Laplacian(img, ddepth, ksize=kernel_size)
     img_abs_dst = cv2.convertScaleAbs(img_dst)
     
