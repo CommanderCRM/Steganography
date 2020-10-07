@@ -133,12 +133,13 @@ def Laplace():
     kernel_size = 3    
     
     image_name_1 = input("Введите название изображения (с расширением): ") 
-    img = cv2.imread(image_name_1, 0)
-    img = cv2.GaussianBlur(img, (3, 3), 0)
-    img_dst = cv2.Laplacian(img, ddepth, ksize=kernel_size)
+    img = cv2.imread(image_name_1)
+    img_blurred = cv2.GaussianBlur(img, (3, 3), 0)
+    img_gray = cv2.cvtColor(img_blurred, cv2.COLOR_BGR2GRAY)
+    img_dst = cv2.Laplacian(img_gray, ddepth, ksize=kernel_size)
     img_abs_dst = cv2.convertScaleAbs(img_dst)
     
-    plt.subplot(121),plt.imshow(img,cmap = 'gray')
+    plt.subplot(121),plt.imshow(img_gray,cmap = 'gray')
     plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
     plt.subplot(122),plt.imshow(img_abs_dst,cmap = 'gray')
     plt.title('Края'), plt.xticks([]), plt.yticks([])
