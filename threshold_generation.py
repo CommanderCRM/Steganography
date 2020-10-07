@@ -15,5 +15,8 @@ std_key = statistics.stdev(prime_list) # СКО на базе простых ч�
 key_xor = int(round(mean_key)) ^ int(round(std_key)) # применение побитового исключающего ИЛИ к двум полученным ключам
 p = 100 # идеальные значения
 q = 50 # p и q
-th_key = p + (key_xor % q)
-print ('Пороговый ключ:', th_key)
+th_key = p + (key_xor % q) # вычисление порогового ключа по заданной формуле
+print ('Mean key:', mean_key)
+print ('Standard key:', std_key)
+print ('XOR key:', key_xor)
+print ('Threshold key:', th_key)
