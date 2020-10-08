@@ -97,18 +97,44 @@ def decode_text():
   text = showData(image)
   return text
 
+def convolve(X, F):
+   X_height = X.shape[0] # высота изображения
+   X_width = X.shape[1] # ширина изображения
+    
+   F_height = F.shape[0] # высота фильтра
+   F_width = F.shape[1] # ширина фильтра
+    
+   H = (F_height - 1) // 2
+   W = (F_width - 1) // 2
+    
+   out = np.zeros((X_height, X_width)) # матрица из ширины и высоты
+    
+   for i in np.arange(H, X_height-H): # итерации через все пиксели изображения
+       for j in np.arange(W, X_width-W):
+            sum = 0
+            for k in np.arange(-H, H+1): # итерации через все пиксели фильтра
+                for l in np.arange(-W, W+1):
+                    #get the corresponding value from image and filter
+                    a = X[i+k, j+l] # получение значения из изображения
+                    w = F[H+k, W+l] # получение значения из фильтра
+                    sum += (w * a)
+            out[i,j] = sum
+            
+   return out
+
 def PSNR():
   image_name_1 = input("Введите название первого изображения (с расширением): ") 
   image_name_2 = input("Введите название второго изображения (с расширением): ") 
   im1 = cv2.imread(image_name_1) 
   im2 = cv2.imread(image_name_2) 
-  psnr = cv2.PSNR(im1, im2)
+  psnr = cv2.PSNR(im1, im2) # расчет PSNR функцией библиотеки OpenCV
   print("Значение PSNR: ", psnr, "dB")
 
 def Canny():
-    image_name_1 = input("Введите название изображения (с расширением): ") 
-    img = cv2.imread(image_name_1,0)
-    edges = cv2.Canny(img,100,200)
+    image_name = input("Введите название изображения (с расширением): ") 
+    img = cv2.imread(image_name,0)
+    
+    edges = cv2.Canny(img,100,200) # детектор границ Кэнни через OpenCV
 
     plt.subplot(121),plt.imshow(img,cmap = 'gray')
     plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
@@ -132,12 +158,13 @@ def Laplace():
     ddepth = cv2.CV_16S
     kernel_size = 3    
     
-    image_name_1 = input("Введите название изображения (с расширением): ") 
-    img = cv2.imread(image_name_1)
-    img_blurred = cv2.GaussianBlur(img, (3, 3), 0)
-    img_gray = cv2.cvtColor(img_blurred, cv2.COLOR_BGR2GRAY)
-    img_dst = cv2.Laplacian(img_gray, ddepth, ksize=kernel_size)
-    img_abs_dst = cv2.convertScaleAbs(img_dst)
+    image_name = input("Введите название изображения (с расширением): ") 
+    img = cv2.imread(image_name)
+    
+    img_blurred = cv2.GaussianBlur(img, (3, 3), 0) # применение гауссова размытия
+    img_gray = cv2.cvtColor(img_blurred, cv2.COLOR_BGR2GRAY) # перевод оригинального трехканального изображения в одноканальное серое
+    img_dst = cv2.Laplacian(img_gray, ddepth, ksize=kernel_size) # применение оператора Лапласа
+    img_abs_dst = cv2.convertScaleAbs(img_dst) # перевод изображения из одноканального серого в оригинальное трехканальное
     
     plt.subplot(121),plt.imshow(img_gray,cmap = 'gray')
     plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
@@ -157,8 +184,37 @@ def Laplace():
     else:
         raise Exception("Выберите правильный вариант")
         
+def Prewitt():
+    image_name = input("Введите название изображения (с расширением): ") 
+    img = cv2.imread(image_name, 0)
+    
+    Hx = np.array([[-1, 0, 1],[-1, 0, 1],[-1, 0, 1]]) # горизонтальная матрица Собеля
+    Hy = np.array([[-1, -1, -1],[0, 0, 0],[1, 1, 1]]) # вертикальная матрица Собеля
+    img_x = convolve(img, Hx) / 6.0 # нормализация векторов по горизонтали
+    img_y = convolve(img, Hy) / 6.0 # нормализация векторов по вертикали
+    img_out = np.sqrt(np.power(img_x, 2) + np.power(img_y, 2)) # расчет величины градиента векторов
+    img_out = (img_out / np.max(img_out)) * 255 # отображение значений от 0 до 255
+    
+    plt.subplot(121),plt.imshow(img,cmap = 'gray')
+    plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
+    plt.subplot(122),plt.imshow(img_out,cmap = 'gray')
+    plt.title('Края'), plt.xticks([]), plt.yticks([])
+    
+    plt.show() 
+    
+    save_case = input("Сохранить изображение с краями? (Y/N): ")
+    userinput = str(save_case)
+    if (userinput == 'Y' | userinput == 'y'):
+        image_for_save = input("Введите название изображения для сохранения (с расширением): ")
+        cv2.imwrite(image_for_save, img_out)
+        print("Изображение сохранено")
+    elif (userinput == 'N' | userinput == 'n'):
+        return()
+    else:
+        raise Exception("Выберите правильный вариант")
+        
 def Steganography(): 
-    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n Ваш выбор: ")
+    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n 6. Детектор границ оператором Прюитт \n Ваш выбор: ")
     userinput = int(stego_type)
     if (userinput == 1):
       encode_text() 
@@ -174,6 +230,9 @@ def Steganography():
         
     elif (userinput == 5):
         Laplace()
+    
+    elif (userinput == 6):
+        Prewitt()
         
     else: 
         raise Exception("Выберите правильный вариант") 
