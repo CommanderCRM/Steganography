@@ -114,7 +114,6 @@ def convolve(X, F):
             sum = 0
             for k in np.arange(-H, H+1): # итерации через все пиксели фильтра
                 for l in np.arange(-W, W+1):
-                    #get the corresponding value from image and filter
                     a = X[i+k, j+l] # получение значения из изображения
                     w = F[H+k, W+l] # получение значения из фильтра
                     sum += (w * a)
