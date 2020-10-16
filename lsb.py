@@ -187,27 +187,26 @@ def Prewitt():
     image_name = input("Введите название изображения (с расширением): ") 
     img = cv2.imread(image_name, 0)
     
-    Hx = np.array([[-1, 0, 1],[-1, 0, 1],[-1, 0, 1]]) # горизонтальная матрица Собеля
-    Hy = np.array([[-1, -1, -1],[0, 0, 0],[1, 1, 1]]) # вертикальная матрица Собеля
-    img_x = convolve(img, Hx) / 6.0 # нормализация векторов по горизонтали
-    img_y = convolve(img, Hy) / 6.0 # нормализация векторов по вертикали
-    img_out = np.sqrt(np.power(img_x, 2) + np.power(img_y, 2)) # расчет величины градиента векторов
-    img_out = (img_out / np.max(img_out)) * 255 # отображение значений от 0 до 255
+    img_gaussian = cv2.GaussianBlur(img,(3,3),0) # гауссово размытие
+    kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]]) # матрица по x
+    kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]]) # матрица по y
+    img_prewittx = cv2.filter2D(img_gaussian, -1, kernelx) # линейный фильтр по x
+    img_prewitty = cv2.filter2D(img_gaussian, -1, kernely) # линейный фильтр по y
     
     plt.subplot(121),plt.imshow(img,cmap = 'gray')
     plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
-    plt.subplot(122),plt.imshow(img_out,cmap = 'gray')
+    plt.subplot(122),plt.imshow(img_prewittx + img_prewitty,cmap = 'gray')
     plt.title('Края'), plt.xticks([]), plt.yticks([])
     
     plt.show() 
     
     save_case = input("Сохранить изображение с краями? (Y/N): ")
     userinput = str(save_case)
-    if (userinput == 'Y' | userinput == 'y'):
+    if (userinput == 'Y'):
         image_for_save = input("Введите название изображения для сохранения (с расширением): ")
-        cv2.imwrite(image_for_save, img_out)
+        cv2.imwrite(image_for_save, img_prewittx + img_prewitty)
         print("Изображение сохранено")
-    elif (userinput == 'N' | userinput == 'n'):
+    elif (userinput == 'N'):
         return()
     else:
         raise Exception("Выберите правильный вариант")
