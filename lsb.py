@@ -211,8 +211,33 @@ def Prewitt():
     else:
         raise Exception("Выберите правильный вариант")
         
+def Dilation():
+    image_name = input("Введите название изображения (с расширением): ") 
+    img = cv2.imread(image_name, 0)
+    
+    kernel = np.ones((3,3), np.uint8)
+    dilated_img = cv2.dilate(img, kernel, iterations = 1)
+    
+    plt.subplot(121),plt.imshow(img,cmap = 'gray')
+    plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
+    plt.subplot(122),plt.imshow(dilated_img,cmap = 'gray')
+    plt.title('Наращивание'), plt.xticks([]), plt.yticks([])
+    
+    plt.show() 
+    
+    save_case = input("Сохранить изображение после наращивания? (Y/N): ")
+    userinput = str(save_case)
+    if (userinput == 'Y'):
+        image_for_save = input("Введите название изображения для сохранения (с расширением): ")
+        cv2.imwrite(image_for_save, dilated_img)
+        print("Изображение сохранено")
+    elif (userinput == 'N'):
+        return()
+    else:
+        raise Exception("Выберите правильный вариант")
+        
 def Steganography(): 
-    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n 6. Детектор границ оператором Прюитт \n Ваш выбор: ")
+    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n 6. Детектор границ оператором Прюитт \n 7. Наращивание матрицей 3х3 \n Ваш выбор: ")
     userinput = int(stego_type)
     if (userinput == 1):
       encode_text() 
@@ -231,6 +256,9 @@ def Steganography():
     
     elif (userinput == 6):
         Prewitt()
+        
+    elif (userinput == 7):
+        Dilation()
         
     else: 
         raise Exception("Выберите правильный вариант") 
