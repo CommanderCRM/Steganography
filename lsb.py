@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+from skimage import filters
 
 def messageToBinary(message): # преобразование сообщения в битовую строку
   if type(message) == str:
@@ -97,30 +98,6 @@ def decode_text():
   text = showData(image)
   return text
 
-def convolve(X, F):
-   X_height = X.shape[0] # высота изображения
-   X_width = X.shape[1] # ширина изображения
-    
-   F_height = F.shape[0] # высота фильтра
-   F_width = F.shape[1] # ширина фильтра
-    
-   H = (F_height - 1) // 2
-   W = (F_width - 1) // 2
-    
-   out = np.zeros((X_height, X_width)) # матрица из ширины и высоты
-    
-   for i in np.arange(H, X_height-H): # итерации через все пиксели изображения
-       for j in np.arange(W, X_width-W):
-            sum = 0
-            for k in np.arange(-H, H+1): # итерации через все пиксели фильтра
-                for l in np.arange(-W, W+1):
-                    a = X[i+k, j+l] # получение значения из изображения
-                    w = F[H+k, W+l] # получение значения из фильтра
-                    sum += (w * a)
-            out[i,j] = sum
-            
-   return out
-
 def PSNR():
   image_name_1 = input("Введите название первого изображения (с расширением): ") 
   image_name_2 = input("Введите название второго изображения (с расширением): ") 
@@ -212,6 +189,7 @@ def Prewitt():
         raise Exception("Выберите правильный вариант")
         
 def Dilation():
+    
     image_name = input("Введите название изображения (с расширением): ") 
     img = cv2.imread(image_name, 0)
     
@@ -236,8 +214,33 @@ def Dilation():
     else:
         raise Exception("Выберите правильный вариант")
         
+def Roberts():
+    
+    image_name = input("Введите название изображения (с расширением): ") 
+    img = cv2.imread(image_name, 0)
+    
+    img_roberts = filters.roberts(img)
+    
+    plt.subplot(121),plt.imshow(img,cmap = 'gray')
+    plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
+    plt.subplot(122),plt.imshow(img_roberts,cmap = 'gray')
+    plt.title('Края'), plt.xticks([]), plt.yticks([])
+    
+    plt.show() 
+    
+    save_case = input("Сохранить изображение после наращивания? (Y/N): ")
+    userinput = str(save_case)
+    if (userinput == 'Y'):
+        image_for_save = input("Введите название изображения для сохранения (с расширением): ")
+        cv2.imwrite(image_for_save, img_roberts)
+        print("Изображение сохранено")
+    elif (userinput == 'N'):
+        return()
+    else:
+        raise Exception("Выберите правильный вариант")
+        
 def Steganography(): 
-    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n 6. Детектор границ оператором Прюитт \n 7. Наращивание матрицей 3х3 \n Ваш выбор: ")
+    stego_type = input("Метод LSB \n 1. Встроить данные \n 2. Извлечь данные \n 3. Рассчитать PSNR \n 4. Детектор границ Кэнни \n 5. Детектор границ оператором Лапласа \n 6. Детектор границ оператором Прюитт \n 7. Наращивание матрицей 3х3 \n 8. Детектор границ оператором Робертса \n Ваш выбор: ")
     userinput = int(stego_type)
     if (userinput == 1):
       encode_text() 
@@ -259,6 +262,9 @@ def Steganography():
         
     elif (userinput == 7):
         Dilation()
+        
+    elif (userinput == 8):
+        Roberts()
         
     else: 
         raise Exception("Выберите правильный вариант") 
