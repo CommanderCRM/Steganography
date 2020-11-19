@@ -219,11 +219,15 @@ def Roberts():
     image_name = input("Введите название изображения (с расширением): ") 
     img = cv2.imread(image_name, 0)
     
-    img_roberts = filters.roberts(img)
+    img_gaussian = cv2.GaussianBlur(img,(3,3),0)
+    kernelx = np.array([[1,0],[0,-1]])
+    kernely = np.array([[0,1],[-1,0]]) 
+    img_robertsx = cv2.filter2D(img_gaussian, -1, kernelx)
+    img_robertsy = cv2.filter2D(img_gaussian, -1, kernely)
     
     plt.subplot(121),plt.imshow(img,cmap = 'gray')
     plt.title('Оригинал'), plt.xticks([]), plt.yticks([])
-    plt.subplot(122),plt.imshow(img_roberts,cmap = 'gray')
+    plt.subplot(122),plt.imshow(img_robertsx + img_robertsy,cmap = 'gray')
     plt.title('Края'), plt.xticks([]), plt.yticks([])
     
     plt.show() 
@@ -232,7 +236,7 @@ def Roberts():
     userinput = str(save_case)
     if (userinput == 'Y'):
         image_for_save = input("Введите название изображения для сохранения (с расширением): ")
-        cv2.imwrite(image_for_save, img_roberts)
+        cv2.imwrite(image_for_save, img_robertsx + img_robertsy)
         print("Изображение сохранено")
     elif (userinput == 'N'):
         return()
