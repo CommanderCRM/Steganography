@@ -1,2 +1,1 @@
-# Методы цифровой стеганографии
-
+# Digital steganography methods
